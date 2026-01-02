@@ -1,0 +1,6 @@
+{
+  "exec": "npx tsx src/index.ts",
+  "watch": ["src"],
+  "ext": "ts,js,json",
+  "ignore": ["node_modules", "dist", "outputs.log", "errors.log"]
+}
