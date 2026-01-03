@@ -32,7 +32,7 @@ export async function scanFromCanon(options: ScanOptions): Promise<string> {
   // --bitdepth: color, gray, bw
   const command =
     `& ${naps2Path} -o "${tempFilePath}" ` +
-    `--driver twain ` +
+    `--driver wia ` + // twain o'rniga wia
     `--device "Canon MF3010" ` +
     `--dpi ${dpi} ` +
     `--bitdepth ${mode} ` +
@@ -40,6 +40,8 @@ export async function scanFromCanon(options: ScanOptions): Promise<string> {
     `--force`; // Mavjud faylni ustidan yozish uchun
 
   try {
+    await execAsync('taskkill /F /IM "naps2.console.exe" /T').catch(() => {});
+    await execAsync('taskkill /F /IM "NAPS2.Worker.exe" /T').catch(() => {});
     console.log(`Skanerlanmoqda: ${mode}, ${dpi} DPI...`);
 
     // PowerShell orqali ishga tushirish

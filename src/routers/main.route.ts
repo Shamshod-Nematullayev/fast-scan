@@ -1,6 +1,9 @@
 import express from "express";
 import { scanFromCanon } from "../utils/scanFromCanon";
 import z from "zod";
+import { createPdfByImgs } from "../utils/createPdfByImgs";
+import os from "os";
+import path from "path";
 
 const router = express.Router();
 
@@ -23,6 +26,25 @@ router.post("/scanFromCanon", async (req, res) => {
       mode,
       paperSize,
     });
+    res.send(tempFileName);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+const createPdfByImgsBodySchema = z.object({
+  imgFileNames: z.array(z.string()),
+  outputFileName: z.string(),
+});
+router.post("/createPdfByImgs", async (req, res) => {
+  const { imgFileNames, outputFileName } = createPdfByImgsBodySchema.parse(
+    req.body
+  );
+  try {
+    const tempFileName = await createPdfByImgs(
+      imgFileNames.map((f) => path.join(os.tmpdir(), f)),
+      outputFileName
+    );
     res.send(tempFileName);
   } catch (err) {
     res.status(500).send(err.message);
