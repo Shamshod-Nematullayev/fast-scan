@@ -57,8 +57,16 @@ export async function createPdfByImgs(
 
     const pdfBytes = await pdfDoc.save();
     fs.writeFileSync(fullPath, pdfBytes);
-
+    imgFileNames.forEach((imgPath) =>
+      fs.unlink(imgPath, (err) => {
+        if (err) {
+          console.error("Faylni o'chirishda xatolik:", err);
+        }
+        console.log(`Fayl muvaffaqiyatli o'chirildi: ${imgPath}`);
+      })
+    );
     console.log(`Fayl muvaffaqiyatli saqlandi: ${fullPath}`);
+    return fullPath;
   } catch (error) {
     console.error("PDF yaratishda xatolik:", error);
   }
