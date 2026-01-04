@@ -9,6 +9,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Setting up EJS as the templating engine
+
+app.use(express.static("./src/public"));
+
 app.use((req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;
 
@@ -25,6 +29,10 @@ app.use((req, res, next) => {
 
   return res.status(403).send("🚫 Access denied");
 });
+
+// app.get("/", (req, res) => {
+//   res.render("index.html", { title: "Home Page" });
+// });
 
 // import end using routers
 import mainRouter from "./routers/main.route.js";

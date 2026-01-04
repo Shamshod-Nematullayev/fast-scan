@@ -27,7 +27,7 @@ router.post("/scanFromCanon", async (req, res) => {
       paperSize,
     });
     res.send(tempFileName);
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).send(err.message);
   }
 });
@@ -46,7 +46,7 @@ router.post("/createPdfByImgs", async (req, res) => {
       outputFileName
     );
     res.send(tempFileName);
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).send(err.message);
   }
 });
