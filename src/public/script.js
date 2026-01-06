@@ -93,17 +93,17 @@ window.addEventListener("keydown", function (event) {
 const savePdfButtonHandler = async () => {
   const outputFileName = prompt(
     "Enter output PDF file name:",
-    "scanned_document.pdf"
+    "scanned_document"
   );
 
   try {
-    const res = await fetch("/createPdf", {
+    const res = await fetch("/createPdfByImgs", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        tempFileNames: tempFileNames,
+        imgFileNames: tempFileNames,
         outputFileName: outputFileName,
       }),
     });
