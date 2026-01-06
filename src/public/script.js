@@ -1,7 +1,6 @@
 let tempFileNames = []; // to store temp file names
 
 async function handleSubmit(data, scanType) {
-  //   need to show values in alert
   console.log("Form Data Submitted:", data);
 
   try {
@@ -21,7 +20,7 @@ async function handleSubmit(data, scanType) {
     tempFileNames.push(tempFileName);
     toDisableButtons(false);
   } catch (error) {
-    alert("Error during scanning: " + error.message);
+    toast("Error during scanning: " + error.message, "error");
   }
 }
 
@@ -111,7 +110,7 @@ const savePdfButtonHandler = async () => {
     const pdfUrl = await res.text();
     console.log("PDF created at:", pdfUrl);
   } catch (error) {
-    alert("Error during PDF creation: " + error.message);
+    toast("Error during PDF creation: " + error.message, "error");
   }
 };
 
@@ -126,20 +125,64 @@ document
   .addEventListener("click", function () {
     if (tempFileNames.length > 0) {
       tempFileNames.pop();
-      alert("Last page removed.");
+      toast("Last page removed.");
     } else {
-      alert("No pages to remove.");
+      toast("No pages to remove.", "error");
     }
   });
 
 document.getElementById("clearAllPages").addEventListener("click", function () {
   tempFileNames = [];
-  alert("All pages cleared.");
+  toast("All pages cleared.");
 });
 
 function toDisableButtons(disabled) {
+  if (disabled) {
+    showLoading();
+  } else {
+    hideLoading();
+  }
   const formElements = document.getElementById("pdfForm").elements;
   for (let i = 0; i < formElements.length; i++) {
     formElements[i].disabled = disabled;
   }
+}
+
+const pageList = document.getElementById("pageList");
+let pages = [1, 2, 3]; // Example initial pages
+
+function addPage(type) {
+  pages.push(type);
+  renderPages();
+  toast(`${type} page added`);
+}
+
+function renderPages() {
+  pageList.innerHTML = "";
+  pages.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.textContent = `${i + 1}. ${p}`;
+    pageList.appendChild(li);
+  });
+}
+
+function showLoading() {
+  document.getElementById("loading").classList.remove("hidden");
+}
+function hideLoading() {
+  document.getElementById("loading").classList.add("hidden");
+}
+
+function toast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = message;
+
+  container.appendChild(el);
+
+  setTimeout(() => {
+    el.style.opacity = "0";
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
 }
