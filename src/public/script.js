@@ -108,6 +108,7 @@ const savePdfButtonHandler = async () => {
     });
 
     const pdfUrl = await res.text();
+    tempFileNames = [];
     console.log("PDF created at:", pdfUrl);
   } catch (error) {
     toast("Error during PDF creation: " + error.message, "error");
