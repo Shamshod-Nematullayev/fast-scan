@@ -19,6 +19,7 @@ async function handleSubmit(data, scanType) {
     const tempFileName = await res.text();
     tempFileNames.push(tempFileName);
     toDisableButtons(false);
+    renderPages();
   } catch (error) {
     toast("Error during scanning: " + error.message, "error");
   }
@@ -150,21 +151,27 @@ function toDisableButtons(disabled) {
 }
 
 const pageList = document.getElementById("pageList");
-let pages = [1, 2, 3]; // Example initial pages
 
-function addPage(type) {
-  pages.push(type);
-  renderPages();
-  toast(`${type} page added`);
-}
-
-function renderPages() {
+async function renderPages() {
   pageList.innerHTML = "";
-  pages.forEach((p, i) => {
-    const li = document.createElement("li");
-    li.textContent = `${i + 1}. ${p}`;
-    pageList.appendChild(li);
-  });
+  for (let i = 0; i < tempFileNames.length; i++) {
+    const div = document.createElement("div");
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "X";
+    deleteButton.addEventListener("click", () => {
+      tempFileNames.splice(i, 1);
+      renderPages();
+    });
+    div.appendChild(deleteButton);
+    div.className = "page";
+    const img = document.createElement("img");
+    const res = await fetch(`/image/${tempFileNames[i]}`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    img.src = url;
+    div.appendChild(img);
+    pageList.appendChild(div);
+  }
 }
 
 function showLoading() {

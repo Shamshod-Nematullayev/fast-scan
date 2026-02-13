@@ -8,42 +8,44 @@
   </head>
 
   <body>
-    <h1>Fast Scan</h1>
-    <form id="pdfForm">
-      <!-- <input type="text" name="pdfName" placeholder="Enter PDF Name" required /> -->
-      <div class="button-group">
-        <select name="dpi" required>
-          <option value="100">100 dpi</option>
-          <option value="150">150 dpi</option>
-          <option value="200" selected>200 dpi</option>
-          <option value="300">300 dpi</option>
-          <option value="400">400 dpi</option>
-        </select>
-        <label for="isOnlyOnePage"
-          >Is Only One Page?
-          <input type="checkbox" name="isOnlyOnePage" id="isOnlyOnePage"
-        /></label>
-      </div>
-      <div class="button-group">
-        <button type="button" id="addBlackWhitePage">+ BlackWhite</button>
-        <button type="button" id="addGrayScalePage">+ GrayScale</button>
-        <button type="button" id="addColorPage">+ Color</button>
-      </div>
-      <div class="button-group">
-        <button type="button" id="removeLastPage">- Remove Last Page</button>
-        <button type="button" id="clearAllPages">Clear All Pages</button>
-        <button type="button" id="savePdfButton">Save PDF</button>
-      </div>
-    </form>
-    <footer>
-      Powered by
-      <a href="https://github.com/Shamshod-Nematullayev/fast-scan"
-        >Shamshod Ne'matullayev</a
-      >
-    </footer>
+    <div>
+      <h1>Fast Scan</h1>
+      <form id="pdfForm">
+        <!-- <input type="text" name="pdfName" placeholder="Enter PDF Name" required /> -->
+        <div class="button-group">
+          <select name="dpi" required>
+            <option value="100">100 dpi</option>
+            <option value="150">150 dpi</option>
+            <option value="200" selected>200 dpi</option>
+            <option value="300">300 dpi</option>
+            <option value="400">400 dpi</option>
+          </select>
+          <label for="isOnlyOnePage"
+            >Is Only One Page?
+            <input type="checkbox" name="isOnlyOnePage" id="isOnlyOnePage"
+          /></label>
+        </div>
+        <div class="button-group">
+          <button type="button" id="addBlackWhitePage">+ BlackWhite</button>
+          <button type="button" id="addGrayScalePage">+ GrayScale</button>
+          <button type="button" id="addColorPage">+ Color</button>
+        </div>
+        <div class="button-group">
+          <button type="button" id="removeLastPage">- Remove Last Page</button>
+          <button type="button" id="clearAllPages">Clear All Pages</button>
+          <button type="button" id="savePdfButton">Save PDF</button>
+        </div>
+      </form>
+      <footer>
+        Powered by
+        <a href="https://github.com/Shamshod-Nematullayev/fast-scan"
+          >Shamshod Ne'matullayev</a
+        >
+      </footer>
+    </div>
     <div id="preview">
       <h3>Pages Preview</h3>
-      <ul id="pageList"></ul>
+      <div id="pageList"></div>
     </div>
     <div id="loading" class="hidden">
       <div class="spinner"></div>

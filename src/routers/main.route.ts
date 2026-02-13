@@ -51,4 +51,10 @@ router.post("/createPdfByImgs", async (req, res) => {
   }
 });
 
+router.get("/image/:fileName", (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(os.tmpdir(), fileName);
+  res.sendFile(filePath);
+});
+
 export default router;
