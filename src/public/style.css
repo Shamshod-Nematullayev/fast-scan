@@ -261,3 +261,115 @@ footer a:hover {
     transform: translateX(0);
   }
 }
+
+/* Dialog / Modal styles */
+dialog#confirmModal {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  box-sizing: border-box;
+}
+
+dialog#confirmModal::backdrop {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.modal-header .warning-icon {
+  font-size: 2rem;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.4));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.8));
+  }
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.modal-body {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.modal-body p {
+  margin: 0 0 12px 0;
+}
+
+.modal-body ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-body li {
+  position: relative;
+  list-style-type: none;
+  padding-left: 6px;
+}
+
+.modal-body li::before {
+  content: "•";
+  color: #f59e0b;
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+
+#confirmScanBtn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+}
+
+#cancelScanBtn {
+  background: #475569;
+  color: #e2e8f0;
+}
+
+#confirmScanBtn:hover, #cancelScanBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+

@@ -25,21 +25,59 @@ async function handleSubmit(data, scanType) {
   }
 }
 
-document.getElementById("pdfForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-  const form = event.target;
-  const formData = new FormData(form);
-  const entries = Object.fromEntries(formData.entries());
-
-  handleSubmit(entries, "color");
-});
-
-function handleClickAddButton(scanType) {
+function checkAndRunScan(scanType) {
   const form = document.getElementById("pdfForm");
   const formData = new FormData(form);
   const entries = Object.fromEntries(formData.entries());
 
+  const lastScanStr = localStorage.getItem("lastFastScanTime");
+  if (lastScanStr) {
+    const lastScanTime = parseInt(lastScanStr, 10);
+    const oneHour = 60 * 60 * 1000;
+    if (Date.now() - lastScanTime > oneHour) {
+      const dialog = document.getElementById("confirmModal");
+      const confirmBtn = document.getElementById("confirmScanBtn");
+      const cancelBtn = document.getElementById("cancelScanBtn");
+
+      let confirmed = false;
+
+      const handleConfirm = () => {
+        confirmed = true;
+        dialog.close();
+      };
+
+      const handleCancel = () => {
+        dialog.close();
+      };
+
+      const handleClose = () => {
+        confirmBtn.removeEventListener("click", handleConfirm);
+        cancelBtn.removeEventListener("click", handleCancel);
+        dialog.removeEventListener("close", handleClose);
+
+        if (confirmed) {
+          handleSubmit(entries, scanType);
+        }
+      };
+
+      confirmBtn.addEventListener("click", handleConfirm);
+      cancelBtn.addEventListener("click", handleCancel);
+      dialog.addEventListener("close", handleClose);
+
+      dialog.showModal();
+      return;
+    }
+  }
   handleSubmit(entries, scanType);
+}
+
+document.getElementById("pdfForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  checkAndRunScan("color");
+});
+
+function handleClickAddButton(scanType) {
+  checkAndRunScan(scanType);
 }
 
 document
@@ -108,9 +146,14 @@ const savePdfButtonHandler = async () => {
       }),
     });
 
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+
     const pdfUrl = await res.text();
     tempFileNames = [];
     console.log("PDF created at:", pdfUrl);
+    localStorage.setItem("lastFastScanTime", Date.now().toString());
   } catch (error) {
     toast("Error during PDF creation: " + error.message, "error");
   }
