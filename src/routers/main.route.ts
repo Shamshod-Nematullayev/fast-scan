@@ -36,14 +36,26 @@ const createPdfByImgsBodySchema = z.object({
   imgFileNames: z.array(z.string()),
   outputFileName: z.string(),
 });
+// Windows fayl nomida ruxsat etilmagan belgilarni olib tashlash
+function sanitizeFileName(name: string) {
+  const clean = name
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "")
+    .replace(/[. ]+$/, "")
+    .trim();
+  return clean || "scanned_document";
+}
+
 router.post("/createPdfByImgs", async (req, res) => {
-  const { imgFileNames, outputFileName } = createPdfByImgsBodySchema.parse(
-    req.body
-  );
   try {
+    const { imgFileNames, outputFileName } = createPdfByImgsBodySchema.parse(
+      req.body
+    );
+    if (imgFileNames.length === 0) {
+      return res.status(400).send("Saqlash uchun varaq yo'q");
+    }
     const tempFileName = await createPdfByImgs(
-      imgFileNames.map((f) => path.join(os.tmpdir(), f)),
-      outputFileName
+      imgFileNames.map((f) => path.join(os.tmpdir(), path.basename(f))),
+      sanitizeFileName(outputFileName)
     );
     res.send(tempFileName);
   } catch (err: any) {
@@ -52,7 +64,7 @@ router.post("/createPdfByImgs", async (req, res) => {
 });
 
 router.get("/image/:fileName", (req, res) => {
-  const fileName = req.params.fileName;
+  const fileName = path.basename(req.params.fileName);
   const filePath = path.join(os.tmpdir(), fileName);
   res.sendFile(filePath);
 });

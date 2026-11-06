@@ -1,74 +1,282 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
+    <title>Fast Scan</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
 
   <body>
-    <div>
-      <h1>Fast Scan</h1>
-      <form id="pdfForm">
-        <!-- <input type="text" name="pdfName" placeholder="Enter PDF Name" required /> -->
-        <div class="button-group">
-          <select name="dpi" required>
-            <option value="100">100 dpi</option>
-            <option value="150">150 dpi</option>
-            <option value="200" selected>200 dpi</option>
-            <option value="300">300 dpi</option>
-            <option value="400">400 dpi</option>
-          </select>
-          <label for="isOnlyOnePage"
-            >Is Only One Page?
-            <input type="checkbox" name="isOnlyOnePage" id="isOnlyOnePage"
-          /></label>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Fast Scan</span>
+      </div>
+
+      <label class="template-picker">
+        <span class="template-picker-label">Shablon</span>
+        <select id="templateSelect" aria-label="Shablonni tanlash"></select>
+      </label>
+
+      <div class="topbar-spacer"></div>
+
+      <button type="button" class="btn btn-ghost" id="openTemplatesBtn">
+        Shablonlarni sozlash
+      </button>
+    </header>
+
+    <main class="layout">
+      <!-- Chap panel: holat va boshqaruv -->
+      <aside class="panel">
+        <section class="card status-card" id="statusCard" data-state="idle">
+          <div class="status-head">
+            <span class="status-dot"></span>
+            <span class="status-title" id="statusTitle">Tayyor</span>
+          </div>
+          <p class="status-text" id="statusText">
+            Birinchi varaqni skanerga qo'ying va «Boshlash» tugmasini bosing.
+          </p>
+          <div class="next-page" id="nextPage"></div>
+        </section>
+
+        <section class="card name-card" id="nameCard" data-qr="none">
+          <div class="card-label">Fayl nomi</div>
+          <div class="name-value" id="nameValue">—</div>
+          <div class="name-hint" id="nameHint">
+            Birinchi varaqdagi QR koddan olinadi
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-label">Varaqlar tartibi</div>
+          <div class="sequence" id="sequence"></div>
+          <div class="template-meta" id="templateMeta"></div>
+        </section>
+
+        <section class="actions">
+          <button type="button" class="btn btn-primary btn-lg" id="primaryBtn">
+            <span id="primaryBtnText">Boshlash</span>
+            <kbd>Space</kbd>
+          </button>
+
+          <div class="manual-buttons hidden" id="manualButtons">
+            <button type="button" class="btn btn-mode" data-mode="bw">
+              Oq-qora <kbd>1</kbd>
+            </button>
+            <button type="button" class="btn btn-mode" data-mode="gray">
+              Kulrang <kbd>2</kbd>
+            </button>
+            <button type="button" class="btn btn-mode" data-mode="color">
+              Rangli <kbd>3</kbd>
+            </button>
+          </div>
+
+          <button type="button" class="btn btn-success btn-lg" id="saveBtn">
+            Saqlash <kbd>0</kbd>
+          </button>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="removeLastBtn">
+              Oxirgisini o'chirish <kbd>⌫</kbd>
+            </button>
+            <button type="button" class="btn btn-secondary" id="clearBtn">
+              Tozalash
+            </button>
+          </div>
+        </section>
+
+        <section class="card saved-card">
+          <div class="card-label">Bugun saqlanganlar</div>
+          <ul class="saved-list" id="savedList">
+            <li class="saved-empty">Hali hech narsa saqlanmadi</li>
+          </ul>
+        </section>
+      </aside>
+
+      <!-- O'ng qism: varaqlar -->
+      <section class="pages">
+        <div class="pages-head">
+          <h2>Varaqlar <span class="count" id="pageCount">0</span></h2>
+          <div class="shortcuts">
+            <span><kbd>Space</kbd> boshlash / davom</span>
+            <span><kbd>Enter</kbd> hozir skanerlash</span>
+            <span><kbd>0</kbd> saqlash</span>
+            <span><kbd>Esc</kbd> to'xtatish</span>
+          </div>
         </div>
-        <div class="button-group">
-          <button type="button" id="addBlackWhitePage">+ BlackWhite</button>
-          <button type="button" id="addGrayScalePage">+ GrayScale</button>
-          <button type="button" id="addColorPage">+ Color</button>
+        <div class="page-grid" id="pageGrid"></div>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-illustration" aria-hidden="true">
+            <span></span>
+          </div>
+          <h3>Hozircha varaq yo'q</h3>
+          <p>
+            Qog'ozni skanerga qo'ying va <kbd>Space</kbd> tugmasini bosing.
+            Keyingi varaqlar shablon bo'yicha taymerdan so'ng o'zi
+            skanerlanadi.
+          </p>
         </div>
-        <div class="button-group">
-          <button type="button" id="removeLastPage">- Remove Last Page</button>
-          <button type="button" id="clearAllPages">Clear All Pages</button>
-          <button type="button" id="savePdfButton">Save PDF</button>
+        <footer class="footer">
+          Powered by
+          <a href="https://github.com/Shamshod-Nematullayev/fast-scan"
+            >Shamshod Ne'matullayev</a
+          >
+        </footer>
+      </section>
+    </main>
+
+
+    <!-- Katta taymer -->
+    <div class="countdown hidden" id="countdown" role="dialog" aria-live="assertive">
+      <div class="countdown-box">
+        <div class="countdown-caption" id="countdownCaption">
+          Keyingi varaqni qo'ying
+        </div>
+        <div class="countdown-ring">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="ring-bg" cx="100" cy="100" r="90" />
+            <circle class="ring-fg" id="ringFg" cx="100" cy="100" r="90" />
+          </svg>
+          <div class="countdown-number" id="countdownNumber">3</div>
+        </div>
+        <div class="countdown-sub" id="countdownSub"></div>
+        <div class="countdown-actions">
+          <button type="button" class="btn btn-success btn-lg" id="cdSaveBtn">
+            Hujjat tugadi — saqlash <kbd>0</kbd>
+          </button>
+          <button type="button" class="btn btn-light" id="cdNowBtn">
+            Hozir skanerlash <kbd>Enter</kbd>
+          </button>
+          <button type="button" class="btn btn-light" id="cdPauseBtn">
+            To'xtatish <kbd>Esc</kbd>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fayl nomini kiritish (QR topilmasa) -->
+    <dialog id="nameModal" class="modal">
+      <form method="dialog" id="nameForm">
+        <h2>Fayl nomi</h2>
+        <p class="muted" id="nameModalHint">
+          QR kod o'qilmadi. Ariza raqamini kiriting.
+        </p>
+        <input
+          type="text"
+          id="nameInput"
+          autocomplete="off"
+          placeholder="Masalan: 12345"
+          required
+        />
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="nameCancelBtn">
+            Bekor qilish
+          </button>
+          <button type="submit" class="btn btn-success">Saqlash</button>
         </div>
       </form>
-      <footer>
-        Powered by
-        <a href="https://github.com/Shamshod-Nematullayev/fast-scan"
-          >Shamshod Ne'matullayev</a
-        >
-      </footer>
-    </div>
-    <div id="preview">
-      <h3>Pages Preview</h3>
-      <div id="pageList"></div>
-    </div>
-    <div id="loading" class="hidden">
-      <div class="spinner"></div>
-      <p>Processing...</p>
-    </div>
-    <dialog id="confirmModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span class="warning-icon">⚠️</span>
-          <h2>Diqqat!</h2>
+    </dialog>
+
+    <!-- 1 soatdan keyin ogohlantirish -->
+    <dialog id="confirmModal" class="modal">
+      <div>
+        <h2>⚠️ Diqqat!</h2>
+        <p>Oxirgi skanerdan beri 1 soatdan ko'proq vaqt o'tdi. Iltimos:</p>
+        <ul>
+          <li>Hujjatga pechat qo'yilganligini tekshiring.</li>
+          <li>Skaner ichida eski hujjatlar qolmaganligiga ishonch hosil qiling.</li>
+        </ul>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancelScanBtn">
+            Bekor qilish
+          </button>
+          <button type="button" class="btn btn-primary" id="confirmScanBtn">
+            Tekshirdim
+          </button>
         </div>
-        <div class="modal-body">
-          <p>Oxirgi scan qilinganiga 1 soatdan ko'proq vaqt o'tdi.</p>
-          <p>Iltimos:</p>
-          <ul>
-            <li>Hujjatga pechat qo'yilganligini tekshiring.</li>
-            <li>Scaner ichida eski hujjatlar qolmaganligiga ishonch hosil qiling.</li>
-          </ul>
+      </div>
+    </dialog>
+
+    <!-- Shablonlar sozlamasi -->
+    <dialog id="templatesModal" class="modal modal-wide">
+      <div class="tpl-layout">
+        <div class="tpl-list-wrap">
+          <h2>Shablonlar</h2>
+          <ul class="tpl-list" id="tplList"></ul>
+          <button type="button" class="btn btn-secondary" id="tplNewBtn">
+            + Yangi shablon
+          </button>
         </div>
-        <div class="modal-footer">
-          <button type="button" id="confirmScanBtn">Tekshirdim</button>
-          <button type="button" id="cancelScanBtn">Bekor qilish</button>
-        </div>
+        <form class="tpl-form" id="tplForm">
+          <label class="field">
+            <span>Nomi</span>
+            <input type="text" id="tplName" required maxlength="60" />
+          </label>
+
+          <div class="field">
+            <span>Ish tartibi</span>
+            <div class="segmented">
+              <label><input type="radio" name="tplKind" value="auto" /> Avtomatik (taymer)</label>
+              <label><input type="radio" name="tplKind" value="manual" /> Qo'lda</label>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Sifat (DPI)</span>
+              <select id="tplDpi">
+                <option value="100">100 dpi</option>
+                <option value="150">150 dpi</option>
+                <option value="200">200 dpi</option>
+                <option value="300">300 dpi</option>
+                <option value="400">400 dpi</option>
+              </select>
+            </label>
+            <label class="field auto-only">
+              <span>Taymer: <b id="tplCountdownValue">3</b> soniya</span>
+              <input type="range" id="tplCountdown" min="3" max="10" step="1" />
+            </label>
+          </div>
+
+          <div class="field auto-only">
+            <span>Varaqlar</span>
+            <ol class="tpl-steps" id="tplSteps"></ol>
+            <button type="button" class="btn btn-ghost btn-sm" id="tplAddStepBtn">
+              + Varaq qo'shish
+            </button>
+            <label class="tpl-rest">
+              Qolgan varaqlar:
+              <select id="tplRest">
+                <option value="gray">Kulrang</option>
+                <option value="color">Rangli</option>
+                <option value="bw">Oq-qora</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-row">
+            <label class="field auto-only">
+              <span>Bir hujjatda ko'pi bilan</span>
+              <input type="number" id="tplMaxPages" min="1" max="200" />
+            </label>
+            <label class="check">
+              <input type="checkbox" id="tplQr" />
+              Fayl nomini QR koddan olish
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-danger-ghost" id="tplDeleteBtn">
+              O'chirish
+            </button>
+            <div class="topbar-spacer"></div>
+            <button type="button" class="btn btn-secondary" id="tplCloseBtn">
+              Yopish
+            </button>
+            <button type="submit" class="btn btn-primary">Saqlash</button>
+          </div>
+        </form>
       </div>
     </dialog>
 
