@@ -3,15 +3,19 @@ config();
 
 const PORT = process.env.PORT || 8585;
 import express from "express";
+import path from "path";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Setting up EJS as the templating engine
-
 app.use(express.static("./src/public"));
+
+// QR kodni brauzerda o'qish uchun jsQR kutubxonasi (internetsiz ham ishlaydi)
+app.get("/vendor/jsQR.js", (req, res) => {
+  res.sendFile(path.resolve("node_modules/jsqr/dist/jsQR.js"));
+});
 
 app.use((req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;

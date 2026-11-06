@@ -69,5 +69,6 @@ export async function createPdfByImgs(
     return fullPath;
   } catch (error) {
     console.error("PDF yaratishda xatolik:", error);
+    throw new Error("PDF yaratishda xatolik yuz berdi.");
   }
 }
