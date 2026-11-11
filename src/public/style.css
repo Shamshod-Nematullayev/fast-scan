@@ -133,6 +133,43 @@ kbd {
   box-shadow: var(--shadow);
 }
 
+.scanner-picker select {
+  max-width: 260px;
+  text-overflow: ellipsis;
+}
+
+.scanner-picker .icon-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.scanner-picker .icon-btn:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.scanner-picker .icon-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.scanner-picker .icon-btn.spinning {
+  animation: scanner-spin 0.9s linear infinite;
+}
+
+@keyframes scanner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .topbar-spacer {
   flex: 1;
 }

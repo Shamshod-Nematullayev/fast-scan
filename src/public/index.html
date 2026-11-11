@@ -19,6 +19,22 @@
         <select id="templateSelect" aria-label="Shablonni tanlash"></select>
       </label>
 
+      <label class="template-picker scanner-picker">
+        <span class="template-picker-label">Skaner</span>
+        <select id="scannerSelect" aria-label="Skanerni tanlash">
+          <option value="">Qidirilmoqda…</option>
+        </select>
+        <button
+          type="button"
+          class="icon-btn"
+          id="scannerRefreshBtn"
+          title="Skanerlarni qayta qidirish"
+          aria-label="Skanerlarni qayta qidirish"
+        >
+          ⟳
+        </button>
+      </label>
+
       <div class="topbar-spacer"></div>
 
       <button type="button" class="btn btn-ghost" id="openTemplatesBtn">
@@ -270,7 +286,23 @@
             <button type="button" class="btn btn-danger-ghost" id="tplDeleteBtn">
               O'chirish
             </button>
-            <div class="topbar-spacer"></div>
+            <label class="template-picker scanner-picker">
+        <span class="template-picker-label">Skaner</span>
+        <select id="scannerSelect" aria-label="Skanerni tanlash">
+          <option value="">Qidirilmoqda…</option>
+        </select>
+        <button
+          type="button"
+          class="icon-btn"
+          id="scannerRefreshBtn"
+          title="Skanerlarni qayta qidirish"
+          aria-label="Skanerlarni qayta qidirish"
+        >
+          ⟳
+        </button>
+      </label>
+
+      <div class="topbar-spacer"></div>
             <button type="button" class="btn btn-secondary" id="tplCloseBtn">
               Yopish
             </button>
