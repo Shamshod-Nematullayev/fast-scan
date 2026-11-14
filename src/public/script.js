@@ -36,6 +36,7 @@ const DEFAULT_TEMPLATES = [
 const STORAGE = {
   templates: "fastScan.templates",
   active: "fastScan.activeTemplate",
+  scanner: "fastScan.scanner",
   saved: "fastScan.saved",
   lastScan: "lastFastScanTime",
 };
@@ -129,6 +130,8 @@ function isAuto() {
 const $ = (id) => document.getElementById(id);
 const el = {
   templateSelect: $("templateSelect"),
+  scannerSelect: $("scannerSelect"),
+  scannerRefreshBtn: $("scannerRefreshBtn"),
   statusCard: $("statusCard"),
   statusTitle: $("statusTitle"),
   statusText: $("statusText"),
@@ -315,6 +318,8 @@ function renderButtons() {
   el.removeLastBtn.disabled = !hasPages || busy;
   el.clearBtn.disabled = !hasPages || busy;
   el.templateSelect.disabled = busy || st === "countdown";
+  el.scannerSelect.disabled = busy || st === "countdown" || scannerState.loading;
+  el.scannerRefreshBtn.disabled = busy || st === "countdown" || scannerState.loading;
 }
 
 let renderedPagesKey = "";
@@ -373,11 +378,24 @@ async function scanPage(mode) {
   S.pauseRequested = false;
   setStatus("scanning");
 
+  const scanner = currentScanner();
+  if (!scanner) {
+    S.pauseRequested = false;
+    toast("Skaner tanlanmagan. Yuqoridagi ro'yxatdan skanerni tanlang.", "error");
+    setStatus("paused", "Skaner tanlanmagan. Skanerni tanlab, Space ni bosing.");
+    return;
+  }
+
   try {
-    const res = await fetch("/scanFromCanon", {
+    const res = await fetch("/scan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dpi: S.template.dpi, mode }),
+      body: JSON.stringify({
+        dpi: S.template.dpi,
+        mode,
+        device: scanner.name,
+        driver: scanner.driver,
+      }),
     });
     const text = await res.text();
     if (!res.ok || !text) throw new Error(text || "Skaner javob bermadi");
@@ -808,6 +826,91 @@ el.templateSelect.addEventListener("change", (e) => {
 });
 
 /* =========================================================
+   Skaner tanlash
+   ========================================================= */
+
+const DRIVER_LABELS = { wia: "WIA", twain: "TWAIN", escl: "Tarmoq" };
+
+const scannerState = {
+  list: [],
+  loading: false,
+  selectedId: storageGet(STORAGE.scanner, null),
+};
+
+function currentScanner() {
+  return scannerState.list.find((x) => x.id === scannerState.selectedId) || null;
+}
+
+function renderScannerSelect() {
+  const { list, loading, selectedId } = scannerState;
+  el.scannerRefreshBtn.classList.toggle("spinning", loading);
+  if (loading && !list.length) {
+    el.scannerSelect.innerHTML = `<option value="">Qidirilmoqda…</option>`;
+    return;
+  }
+  if (!list.length) {
+    el.scannerSelect.innerHTML = `<option value="">Skaner topilmadi</option>`;
+    return;
+  }
+  el.scannerSelect.innerHTML = list
+    .map(
+      (x) =>
+        `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)} · ${DRIVER_LABELS[x.driver] || x.driver}</option>`
+    )
+    .join("");
+  el.scannerSelect.value = selectedId || "";
+}
+
+function selectScanner(id) {
+  scannerState.selectedId = id;
+  storageSet(STORAGE.scanner, id);
+  renderScannerSelect();
+}
+
+async function loadScanners(refresh = false) {
+  scannerState.loading = true;
+  renderScannerSelect();
+  render();
+  try {
+    const res = await fetch("/scanners" + (refresh ? "?refresh=1" : ""));
+    if (!res.ok) throw new Error((await res.text()) || "Server javob bermadi");
+    const list = await res.json();
+    scannerState.list = Array.isArray(list) ? list : [];
+  } catch (err) {
+    scannerState.list = [];
+    toast("Skanerlar ro'yxatini olib bo'lmadi: " + err.message, "error");
+  } finally {
+    scannerState.loading = false;
+  }
+
+  const { list } = scannerState;
+  if (!currentScanner() && list.length) {
+    // Avval saqlangan skaner topilmasa: shu nomdagi boshqa drayver, bo'lmasa WIA dagi birinchisi
+    const prevName = String(scannerState.selectedId || "").replace(/^[a-z]+:/, "");
+    const fallback =
+      list.find((x) => x.name === prevName) || list.find((x) => x.driver === "wia") || list[0];
+    selectScanner(fallback.id);
+  }
+  renderScannerSelect();
+  render();
+
+  if (refresh) {
+    toast(list.length ? `${list.length} ta skaner topildi` : "Skaner topilmadi", list.length ? "info" : "error");
+  }
+}
+
+el.scannerSelect.addEventListener("change", (e) => {
+  if (e.target.value) {
+    selectScanner(e.target.value);
+    const sc = currentScanner();
+    if (sc) toast(`Skaner: ${sc.name}`);
+  }
+  e.target.blur();
+});
+
+el.scannerRefreshBtn.addEventListener("click", () => loadScanners(true));
+
+/* =========================================================
    Shablonlar muharriri
    ========================================================= */
 
@@ -1066,3 +1169,4 @@ function toast(message, type = "info") {
 
 applyTemplate(storageGet(STORAGE.active, DEFAULT_TEMPLATES[0].id));
 renderSaved();
+loadScanners();
